@@ -42,6 +42,14 @@ Synchronisation angegeben werden. Synchronisation starten:
 php advolux-ldap-sync start /pfad/
 ```
 
+## Cronjob
+
+Zur täglichen Synchronisation kann ein Cronjob eingerichtet werden, der das Skript regelmäßig ausführt. Folgender Eintrag synchronisiert die Telefonnummern täglich um 02:00 Uhr (Pfadangaben anpassen!):
+
+```
+0 2 * * * php /home/advolux/advolux-ldap-sync/advolux-ldap-sync start /home/advolux/AdvoluxData/sync/person/
+```
+
 ## Debugging
 
 Zur Fehleranalyse lohnt ein Blick in die `storage/logs/advolux-ldap-sync.log`, dort werden Änderungen an den Daten
