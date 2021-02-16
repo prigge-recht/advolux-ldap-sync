@@ -1,6 +1,6 @@
 # Advolux LDAP Sync
 
-Mit diesem Kommandozeolenprogramm lassen sich die Kontakte in Advolux einfach mit einem LDAP-Server synchronisieren:
+Mit diesem Kommandozeilenprogramm lassen sich die Kontakte in Advolux einfach mit einem LDAP-Server synchronisieren:
 
 ![alt text](https://cloud.robincramer.de/s/oDG24pgyHQMn3z8/preview)
 
@@ -10,17 +10,24 @@ Advolux bietet standardmäßig leider nur eine Synchronisation von Kontakten mit
 Exchange setzt, kann die Kontakte mit diesem Kommandozeilenprogramm mit einem LDAP-Server synchronisieren. Damit lassen
 sich die Kontakte mit anderen Diensten verknüpfen, beispielsweise den snom Telefonen.
 
+Derzeit werden nur Vorname, Nachname, Anzeigename und Telefonnummer synchronisiert. Adressen oder andere Kontaktangaben werden nicht an LDAP übertragen.
+
 ## Systemvoraussetzungen
 
 * PHP 7.4 oder höher
-* PHP extension: `php-xml`, `php-simplexml` und `php-ldap`
+* PHP-Erweiterungen: `php-xml`, `php-simplexml`, `php-ldap` und `php-mbstring`
 * composer
 
 ## Installation
 
-Repository klonen und Dependencies installieren:
+
+Repository klonen und Abhängigkeiten installieren:
 
 ```
+sudo apt-get install php 8.0-fpm php8.0-xml php8.0-simplexml php8.0-ldap php8.0-mbstring
+curl -sS https://getcomposer.org/installer -o composer-setup.php
+sudo php composer-setup.php --install-dir=/usr/local/bin --filename=composer
+
 git clone https://github.com/rocramer/advolux-ldap-sync.git
 cd advolux-ldap-sync
 composer install
@@ -28,11 +35,11 @@ composer install
 
 Die LDAP-Konfiguration kann in `config/ldap.php` vorgenommen werden.
 
-Advolux speichert im Ordner `sync/personen` XML-Dateien zu den Kontakten. Der Pfad zu diesem Ordner muss beim Start der
-Synchrinisation angegeben werden. Synchronisation starten:
+Advolux speichert im Ordner `AdvoluxData/sync/person/` XML-Dateien zu den Kontakten. Der Pfad zu diesem Ordner muss beim Start der
+Synchronisation angegeben werden. Synchronisation starten:
 
 ```
-php advolux-ldap-sync start /pfad/zur/advolux/installation
+php advolux-ldap-sync start /pfad/
 ```
 
 ## Debugging
