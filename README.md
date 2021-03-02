@@ -20,11 +20,12 @@ Derzeit werden nur Vorname, Nachname, Anzeigename und Telefonnummer synchronisie
 
 ## Installation
 
+Im Folgenden eine Installation auf einem Debian/Ubuntu-System als Beispiel.
 
 Repository klonen und Abhängigkeiten installieren:
 
 ```
-sudo apt-get install php 8.0-fpm php8.0-xml php8.0-simplexml php8.0-ldap php8.0-mbstring
+sudo apt-get install php8.0-fpm php8.0-xml php8.0-simplexml php8.0-ldap php8.0-mbstring
 curl -sS https://getcomposer.org/installer -o composer-setup.php
 sudo php composer-setup.php --install-dir=/usr/local/bin --filename=composer
 
