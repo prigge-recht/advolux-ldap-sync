@@ -148,8 +148,11 @@ class StartCommand extends Command
         if ($searchCount) {
             $entry = ldap_get_entries($this->ldapConnection, $search);
 
-            // If phone number not changed, return
-            if ($entry[0]['telephonenumber'][0] === $contact['telephoneNumber']) {
+            // If phone number and name not changed, return
+            if (
+                ($entry[0]['telephonenumber'][0] === $contact['telephoneNumber']) &&
+                ($entry[0]['cn'][0] === $contact['cn'])
+            ) {
                 return;
             }
 
