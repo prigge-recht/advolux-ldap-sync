@@ -162,7 +162,10 @@ class StartCommand extends Command
 
 
         // Check if phone number already exist
-        $search = ldap_search($this->ldapConnection, $searchDn, "(telephonenumber={$contact['telephoneNumber']})");
+        $number  = str_replace('(', '', $contact['telephoneNumber']);
+        $number  = str_replace(')', '', $number);
+
+        $search = ldap_search($this->ldapConnection, $searchDn, "(telephoneNumber={$number})");
         $searchCount = ldap_count_entries($this->ldapConnection, $search);
 
         if ($searchCount) {
