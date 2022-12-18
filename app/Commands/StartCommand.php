@@ -178,7 +178,7 @@ class StartCommand extends Command
             ldap_add($this->ldapConnection, $dn, $contact);
             $this->newEntriesCount = $this->newEntriesCount + 1;
         } catch (\Exception $ex) {
-
+            Log::error($ex);
         }
     }
 
