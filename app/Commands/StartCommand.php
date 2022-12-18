@@ -2,6 +2,8 @@
 
 namespace App\Commands;
 
+use Exception;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 use LaravelZero\Framework\Commands\Command;
@@ -14,6 +16,7 @@ class StartCommand extends Command
     protected int $editEntriesCount;
     protected int $noPhoneNumberCount;
     protected int $multiplePhoneNumberCount;
+    protected Collection $contacts;
 
     protected $ldapConnection;
 
@@ -34,8 +37,6 @@ class StartCommand extends Command
 
     /**
      * Execute the console command.
-     *
-     * @return mixed
      */
     public function handle()
     {
@@ -111,14 +112,14 @@ class StartCommand extends Command
 
     private function collectContact($xml): array
     {
-        $phoneNumber = (string)trim("{$xml->referenz->tefax->vorwahl} {$xml->referenz->tefax->anschluss} {$xml->referenz->tefax->app}");
+        $phoneNumber = trim("{$xml->referenz->tefax->vorwahl} {$xml->referenz->tefax->anschluss} {$xml->referenz->tefax->app}");
 
         return array_filter([
-            'uid' => (string)trim($xml->person->uid),
-            'cn' => (string)trim($xml->info->bezeichnung),
-            'displayName' => (string)trim($xml->info->bezeichnung),
-            'givenName' => (string)trim($xml->person->vorname),
-            'sn' => (string)trim($xml->person->name1." ".$xml->person->name2." ".$xml->person->name3),
+            'uid' => trim($xml->person->uid),
+            'cn' => trim($xml->info->bezeichnung),
+            'displayName' => trim($xml->info->bezeichnung),
+            'givenName' => trim($xml->person->vorname),
+            'sn' => trim($xml->person->name1." ".$xml->person->name2." ".$xml->person->name3),
             'objectclass' => "inetOrgPerson",
             'telephoneNumber' => $phoneNumber,
         ]);
@@ -131,7 +132,7 @@ class StartCommand extends Command
         $dn = "uid={$contact['uid']},ou=".config('ldap.ou').",dc=".config('ldap.dc');
         $searchDn = "ou=".config('ldap.ou').",dc=".config('ldap.dc');
 
-        if (! $contact['cn'] || $contact['cn'] === '') {
+        if (! $contact['cn']) {
             return;
         }
 
@@ -165,7 +166,7 @@ class StartCommand extends Command
         $number  = str_replace('(', '', $contact['telephoneNumber']);
         $number  = str_replace(')', '', $number);
 
-        $search = ldap_search($this->ldapConnection, $searchDn, "(telephoneNumber={$number})");
+        $search = ldap_search($this->ldapConnection, $searchDn, "(telephoneNumber=$number)");
         $searchCount = ldap_count_entries($this->ldapConnection, $search);
 
         if ($searchCount) {
@@ -177,7 +178,7 @@ class StartCommand extends Command
         try {
             ldap_add($this->ldapConnection, $dn, $contact);
             $this->newEntriesCount = $this->newEntriesCount + 1;
-        } catch (\Exception $ex) {
+        } catch (Exception $ex) {
             Log::error($ex);
         }
     }
@@ -185,19 +186,19 @@ class StartCommand extends Command
     protected function showInfo(): void
     {
         if (config('ldap.ignore-without-phone')) {
-            $this->info("\n\nKontakte ohne Telefonnummer, daher nicht importiert: {$this->noPhoneNumberCount}");
-            Log::info("Kontakte ohne Telefonnummer, daher nicht importiert: {$this->noPhoneNumberCount}");
+            $this->info("\n\nKontakte ohne Telefonnummer, daher nicht importiert: $this->noPhoneNumberCount");
+            Log::info("Kontakte ohne Telefonnummer, daher nicht importiert: $this->noPhoneNumberCount");
         }
 
-        $this->info("Telefonnummer bereits anderem Kontakt zugeordnet, daher nicht importiert: {$this->multiplePhoneNumberCount}");
-        Log::info("Telefonnummer bereits anderem Kontakt zugeordnet, daher nicht importiert: {$this->multiplePhoneNumberCount}");
+        $this->info("Telefonnummer bereits anderem Kontakt zugeordnet, daher nicht importiert: $this->multiplePhoneNumberCount");
+        Log::info("Telefonnummer bereits anderem Kontakt zugeordnet, daher nicht importiert: $this->multiplePhoneNumberCount");
 
 
-        $this->info("Neue Kontakte importiert: {$this->newEntriesCount}");
-        Log::info("Neue Kontakte importiert: {$this->newEntriesCount}");
+        $this->info("Neue Kontakte importiert: $this->newEntriesCount");
+        Log::info("Neue Kontakte importiert: $this->newEntriesCount");
 
-        $this->info("Bestehende Kontakte aktualisiert: {$this->editEntriesCount}");
-        Log::info("Bestehende Kontakte aktualisiert: {$this->editEntriesCount}");
+        $this->info("Bestehende Kontakte aktualisiert: $this->editEntriesCount");
+        Log::info("Bestehende Kontakte aktualisiert: $this->editEntriesCount");
 
 
         $dn = 'ou='.config('ldap.ou').',dc='.config('ldap.dc');
@@ -206,8 +207,8 @@ class StartCommand extends Command
         $allContacts = ldap_search($this->ldapConnection, $dn, $filter);
         $allContactsCount = ldap_count_entries($this->ldapConnection, $allContacts);
 
-        $this->info("Alle in LDAP gespeicherten Kontakte: {$allContactsCount}");
-        Log::info("Alle in LDAP gespeicherten Kontakte: {$allContactsCount}");
+        $this->info("Alle in LDAP gespeicherten Kontakte: $allContactsCount");
+        Log::info("Alle in LDAP gespeicherten Kontakte: $allContactsCount");
 
         print("\n");
     }
