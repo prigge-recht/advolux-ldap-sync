@@ -170,6 +170,7 @@ class StartCommand extends Command
         $searchCount = ldap_count_entries($this->ldapConnection, $search);
 
         if ($searchCount) {
+            $this->multiplePhoneNumberCount = $this->multiplePhoneNumberCount + 1;
             return;
         }
 
